@@ -5,6 +5,8 @@
 
 使用的python扩展如下：
 
+  angularjs
+
   tornado
 
   oslo.config
