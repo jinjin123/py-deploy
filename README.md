@@ -22,3 +22,8 @@
   pygit2
 
   oss2
+
+以下为项目截图：
+
+首页：
+![image](https://github.com/xiaowan/py-deploy/blob/master/snapshot/%E9%A6%96%E9%A1%B5.gif)
