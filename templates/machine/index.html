@@ -1,0 +1,111 @@
+<style>
+    .m-l { margin-right:4px; }
+</style>
+<div>
+    <div class="btn-group">
+        <button ng-click="add_machine_button()" class="btn">添加</button>
+        <button ng-click="reload()" class="btn">刷新</button>
+    </div>
+
+        <!-- Modal -->
+    <div id="add-machine" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 id="myModalLabel">||title||</h4>
+        </div>
+        <div class="modal-body">
+
+            <!-- modal body -->
+            <form class="form-horizontal">
+                <input type="hidden" ng-model="machine.id"/>
+                <div class="control-group">
+                    <label class="control-label fabric-label">机器名</label>
+                    <div class="controls">
+                        <input type="text" placeholder="机器名" autocomplete="off" style="height: 30px;" ng-model="machine.name">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label fabric-label">IP地址</label>
+                    <div class="controls">
+                        <input type="text" placeholder="IP地址" autocomplete="off" style="height: 30px;" ng-model="machine.ip" ng-disabled="machine.id">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label fabric-label">验证方式</label>
+                    <div class="controls">
+                        <label class="radio inline"><input type="radio" ng-model="machine.auth_type" name="optionsRadios" value="password">密码</label>
+                        <label class="radio inline"><input type="radio" ng-model="machine.auth_type" name="optionsRadios" value="key">秘钥</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label fabric-label">登录账号</label>
+                  <div class="controls">
+                      <input type="text" placeholder="登录账号" autocomplete="off" style="height: 30px;" ng-model="machine.account">
+                  </div>
+                </div>
+                <div class="control-group" ng-show="machine.auth_type =='password'">
+                  <label class="control-label fabric-label">登录密码</label>
+                  <div class="controls">
+                      <input type="text" placeholder="登录密码" autocomplete="off" style="height: 30px;" ng-model="machine.password">
+                  </div>
+                </div>
+
+              <div class="control-group">
+                  <label class="control-label fabric-label">描述</label>
+                  <div class="controls">
+                      <textarea rows="3" placeholder="描述" ng-model="machine.desc"></textarea>
+                  </div>
+              </div>
+            </form>
+            <!-- /modal body -->
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">关闭</button>
+            <button class="btn btn-primary" ng-click="add_machine()">保存</button>
+        </div>
+    </div>
+    <!-- /Modal -->
+
+</div>
+
+<hr>
+
+<div class="box">
+    <div>
+
+        <table class="table table-hover">
+    <thead>
+        <tr>
+            <th>名称</th>
+            <th>IP地址</th>
+            <th>验证方式</th>
+            <th>登陆账号</th>
+            <th>密码</th>
+            <th>描述</th>
+            <th>添加时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="x in machines">
+            <td>||x.name||</td>
+            <td>||x.ip||</td>
+
+            <td ng-if="x.auth_type == 'password'">	<span class="label label-info">密码</span></td>
+            <td ng-if="x.auth_type == 'key'"><span class="label label-pink">秘钥</span></td>
+            <td>||x.account||</td>
+            <td>||x.password||</td>
+            <td>||x.desc||</td>
+            <td>||x.create_time||</td>
+            <td>
+                <a ng-click="edit(x.id)">编辑</a>
+                <a ng-click="delete(x.id)" >删除</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+    </div>
+</div>

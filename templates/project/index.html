@@ -1,0 +1,154 @@
+<style>
+    .fabric-label { width:120px!important; }
+</style>
+
+<div>
+    <button class="btn btn-primary" ng-click="add()">添加</button>
+
+    <div class="btn-group pull-right">
+        <button class="btn" ng-click="reload()" >刷新</button>
+    </div>
+
+    <!-- Modal -->
+    <div id="edit-project" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 id="myModalLabel">||title||</h4>
+        </div>
+        <div class="modal-body">
+
+            <!-- modal body -->
+            <form class="form-horizontal">
+                <input type="hidden" ng-model="project.id"/>
+                <div class="control-group">
+                    <label class="control-label fabric-label">项目名</label>
+                    <div class="controls">
+                        <input type="text" placeholder="项目名" autocomplete="off" style="height: 30px;" ng-model="project.name">
+                    </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label fabric-label">Git用户</label>
+                  <div class="controls">
+                      <input type="text" placeholder="Git用户" autocomplete="off" style="height: 30px;" ng-model="project.gituser" ng-disabled="project.id && project.status !='clone_error' ">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label fabric-label">Git仓库地址</label>
+                  <div class="controls">
+                      <input type="text" placeholder="Git仓库地址" autocomplete="off" style="height: 30px;" ng-model="project.gitaddress" ng-disabled="project.id && project.status !='clone_error' ">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label fabric-label">本地仓库地址</label>
+                  <div class="controls">
+                      <input type="text" placeholder="本地仓库地址" autocomplete="off" style="height: 30px;" ng-model="project.localaddress" ng-disabled="project.id  && project.status !='clone_error'">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label fabric-label">远程存放地址</label>
+                  <div class="controls">
+                      <input type="text" placeholder="远程存放地址" autocomplete="off" style="height: 30px;" ng-model="project.remoteaddress" ng-disabled="project.id && project.status !='clone_error'">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label fabric-label">发布地址</label>
+                  <div class="controls">
+                      <input type="text" placeholder="发布地址" autocomplete="off" style="height: 30px;" ng-model="project.deployaddress" ng-disabled="project.id && project.status !='clone_error'">
+                  </div>
+                </div>
+
+              <div class="control-group">
+                  <label class="control-label fabric-label">描述</label>
+                  <div class="controls">
+                      <textarea rows="3" placeholder="描述" ng-model="project.desc"></textarea>
+                  </div>
+              </div>
+            </form>
+            <!-- /modal body -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">关闭</button>
+            <button class="btn btn-primary" ng-click="add_project()">保存</button>
+        </div>
+    </div>
+    <!-- /Modal -->
+
+</div>
+
+<hr />
+
+<div class="box">
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>项目名称</th>
+            <th>Git用户</th>
+            <th>Git地址</th>
+            <th>描述</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="x in projects">
+            <td>||x.name||</td>
+            <td>||x.gituser||</td>
+            <td>||x.gitaddress||</td>
+            <td>||x.desc||</td>
+            <td ng-if="x.status == 'ready'"><span class="badge badge-success"> 克隆成功 </span></td>
+            <td ng-if="x.status == 'clone_error'"><span class="badge badge-important" ng-click="showerror(x.id)"> 克隆失败 </span></td>
+            <td ng-if="x.status == 'cloneing'"><span class="badge badge-warning"> 克隆ING </span></td>
+
+            <td>||x.create_time||</td>
+            <td>
+                <a ng-if="x.status != 'writing_clone'" ng-click="edit(x.id)">编辑</a>
+                <a ng-if="x.status == 'clone_error'" ng-click="again(x.id)">重试</a>
+                <a ng-if="x.status == 'ready'" ng-click="assignment(x.id)" href="#assignment" data-toggle="modal">配额</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
+
+    <!-- 配额 -->
+    <div id="assignment" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 id="myModalLabel-assignment">配置机组</h4>
+        </div>
+        <div class="modal-body">
+
+            <!-- modal body -->
+            <table>
+                <tr>
+                    <td>
+                        <select multiple="multiple" size="12" style="margin-right:3px;" ng-model="select_have" id="select_have">
+                            <option ng-repeat=" z in have" value="||z.id||">||z.name||<-->||z.desc||</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <button type="button" class="btn btn-link" ng-click="add_machine()" ng-model="project_id"><<</button>
+                        <br />
+                        <button type="button" class="btn btn-link" ng-click="del_machine()" ng-model="project_id" style="margin-top: 10px;">>></button>
+                    </td>
+
+                    <td>
+                        <select multiple="multiple" size="12" ng-model="select_nothave" id="select_nothave">
+                            <option ng-repeat="y in not_have" value="||y.id||">||y.name||<-->||y.desc||</option>
+                        </select>
+                    </td>
+
+                </tr>
+            </table>
+
+            <!-- /modal body -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+    <!-- /配额 -->

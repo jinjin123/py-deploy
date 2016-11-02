@@ -1,0 +1,126 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>
+		雪瓣发布系统
+	</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width">
+
+	<script src="/assets/javascripts/1.3.0/adminflare-demo-init.min.js" type="text/javascript"></script>
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700" rel="stylesheet" type="text/css">
+	<script type="text/javascript">
+		document.write('<link href="/assets/css/'+DEMO_ADMINFLARE_VERSION+'/'+DEMO_CURRENT_THEME+'/bootstrap.min.css" media="all" rel="stylesheet" type="text/css" id="bootstrap-css">');
+		document.write('<link href="/assets/css/'+DEMO_ADMINFLARE_VERSION+'/'+DEMO_CURRENT_THEME+'/adminflare.min.css" media="all" rel="stylesheet" type="text/css" id="adminflare-css">');
+		document.write('<link href="/assets/css/'+DEMO_ADMINFLARE_VERSION+'/pages.min.css" media="all" rel="stylesheet" type="text/css">');
+	</script>
+
+	<script src="/assets/javascripts/1.3.0/modernizr-jquery.min.js" type="text/javascript"></script>
+	<script src="/assets/javascripts/1.3.0/adminflare-demo.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#signin-container').submit(function() {
+				var username = $('#id_username').val();
+				var password = $('#id_password').val();
+				var _xsrf = $('input[name="_xsrf"]').val();
+				$.ajax({
+					type : 'POST',
+					url : '/login',
+					data : {
+						_xsrf : _xsrf ,
+						username : username ,
+						password : password
+					} ,
+					dataType : 'json',
+					success : function( res ) {
+						if ( res.status == 'success' ) {
+							window.location.href = '/main/'
+						} else {
+							alert( '登录失败' );
+						}
+					}
+				});
+				return false;
+			});
+
+			$('.forgot-password').click(function(){
+				alert("怪我喽");
+				return false;
+			});
+
+			var updateBoxPosition = function() {
+				$('#signin-container').css({
+					'margin-top': ($(window).height() - $('#signin-container').height()) / 2 - 100
+				});
+			};
+			$(window).resize(updateBoxPosition);
+			setTimeout(updateBoxPosition, 50);
+
+		});
+	</script>
+</head>
+
+<body class="signin-page">
+	<section id="signin-container">
+
+		<form accept-charset="utf-8" autocomplete="off">
+			<fieldset>
+				{% module xsrf_form_html() %}
+				<div class="fields">
+					<input type="text" name="username" placeholder="用户名" autocomplete="off" id="id_username" tabindex="1">
+
+					<input type="password" name="password" placeholder="密码" autocomplete="off" id="id_password" tabindex="2">
+				</div>
+				<a href="index.html#" title="" tabindex="3" class="forgot-password">忘记密码</a>
+
+				<button type="submit" class="btn btn-primary btn-block" tabindex="4">登录</button>
+			</fieldset>
+		</form>
+	</section>
+
+</body>
+
+<!--
+<body class="signin-page">
+	<section id="signin-container">
+		<a href="dashboard.html" title="AdminFlare" class="header">
+			<img src="assets/images/af-logo-signin.png" alt="Sign in to Admin Flare">
+			<span>
+				Sign in to<br>
+				<strong>AdminFlare</strong>
+			</span>
+		</a>
+		<form action="dashboard.html" method="get" accept-charset="utf-8">
+			<fieldset>
+				<div class="fields">
+					<input type="text" name="username" placeholder="Username" id="id_username" tabindex="1">
+
+					<input type="password" name="password" placeholder="Password" id="id_password" tabindex="2">
+				</div>
+				<a href="index.html#" title="" tabindex="3" class="forgot-password">Forgot?</a>
+
+				<button type="submit" class="btn btn-primary btn-block" tabindex="4">Sign In</button>
+			</fieldset>
+		</form>
+		<div class="social">
+			<p>...or sign in with</p>
+
+			<a href="dashboard.html" title="" tabindex="5" class="twitter">
+				<i class="icon-twitter"></i>
+			</a>
+
+			<a href="dashboard.html" title="" tabindex="6" class="facebook">
+				<i class="icon-facebook"></i>
+			</a>
+
+			<a href="dashboard.html" title="" tabindex="7" class="google">
+				<i class="icon-google-plus"></i>
+			</a>
+		</div>
+	</section>
+
+</body>
+-->
+</html>

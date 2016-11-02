@@ -1,0 +1,218 @@
+<style>
+    .fabric-label { width:120px!important; }
+</style>
+
+<div>
+    <button class="btn" ng-click="add()">新增发布</button>
+    <button class="btn" ng-click="reload('')">全部</button>
+    <button class="btn" ng-click="reload('edit')">编辑</button>
+    <button class="btn" ng-click="reload('ready')">确认</button>
+    <button class="btn" ng-click="reload('deploying')">发布中</button>
+    <button class="btn" ng-click="reload('end')">发布结束</button>
+    <button class="btn" ng-click="reload('cancel')">作废</button>
+    <button class="btn" ng-click="reload('error')">异常</button>
+
+        <!-- Modal -->
+    <div id="add-fabric" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 id="myModalLabel-fabric">||title||</h4>
+        </div>
+        <div class="modal-body">
+            <!-- modal body -->
+            <form class="form-horizontal">
+                <input type="hidden" ng-model="fabric.id" />
+                <div class="control-group">
+                    <label class="control-label fabric-label">发布类型</label>
+                    <div class="controls">
+                        <label class="radio inline"><input ng-click="getProjects('ready')" ng-disabled="fabric.id" ng-model="fabric.type" type="radio" value="new">全新发布</label>
+                        <label class="radio inline"><input ng-click="getProjects('ready')" ng-disabled="fabric.id" ng-model="fabric.type" type="radio" value="tag">TAG发布</label>
+                    </div>
+                </div>
+
+                <div class="control-group" ng-show="fabric.type">
+                  <label class="control-label fabric-label">项目</label>
+                  <div class="controls">
+                      <select style="width:205px;" ng-disabled="fabric.id" ng-model="fabric.project_id" ng-options="project.id as project.name for project in projects" ng-change="getTagsandMachines(fabric.project_id)">
+                        <option value>---请选择---</option>
+                      </select>
+                  </div>
+                </div>
+
+                <div class="control-group" ng-show="fabric.type=='new' && fabric.project_id">
+                    <label class="control-label fabric-label">TAG</label>
+                    <div class="controls">
+                        <input type="text" ng-model="fabric.tag" placeholder="TAG" autocomplete="off" style="height: 30px;">
+                    </div>
+                </div>
+
+                <div class="control-group" ng-show="fabric.type=='tag' && fabric.project_id">
+                    <label class="control-label fabric-label">TAG</label>
+                    <div class="controls">
+                        <select style="width:205px;" ng-model="fabric.tag" ng-options="tag.tag as tag.tag for tag in tags">
+                        <option value>---请选择---</option>
+                      </select>
+                    </div>
+                </div>
+
+                <div class="control-group" ng-show="!fabric.id && fabric.project_id">
+                    <label class="control-label fabric-label">机器</label>
+                    <div class="controls">
+                        <label class="checkbox" ng-repeat="machine in machines">
+                            <input ng-model="selected_machine" name="machine" type="checkbox" value="||machine.id||"> ||machine.name||<-->||machine.desc||
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                  <label class="control-label fabric-label">发布描述</label>
+                  <div class="controls">
+                      <textarea rows="3" placeholder="发布描述" ng-model="fabric.desc"></textarea>
+                  </div>
+                </div>
+
+            </form>
+            <!-- /modal body -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">关闭</button>
+            <button class="btn btn-primary" ng-click="add_fabric()">保存</button>
+        </div>
+    </div>
+    <!-- /Modal -->
+
+</div>
+
+<hr />
+
+<div class="box">
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>项目</th>
+            <th>发布版本</th>
+            <th>发布方式</th>
+            <th>更新描述</th>
+            <th>发布状态</th>
+            <th>总数</th>
+            <th>成功</th>
+            <th>失败</th>
+            <th>发布时间</th>
+            <th>结束时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="x in fabric_list">
+            <td>||x.project_name||</td>
+            <td>||x.tag||</td>
+            <td ng-if="x.type == 'new'"><span class="label label-info">全新</span></td>
+            <td ng-if="x.type == 'tag'"><span class="label label-blue">回滚</span></td>
+            <td>||x.desc||</td>
+
+            <td ng-if="x.status == 'edit'"><span class="badge badge-success"> 编辑 </span></td>
+            <td ng-if="x.status == 'ready'"><span class="badge badge-important" ng-click="showerror(x.id)"> 就绪 </span></td>
+            <td ng-if="x.status == 'deploying'"><span class="badge badge-warning"> 发布中 </span></td>
+            <td ng-if="x.status == 'end'"><span class="badge badge-pink"> 结束 </span></td>
+            <td ng-if="x.status == 'cancel'"><span class="badge badge-inverse"> 作废 </span></td>
+            <td ng-if="x.status == 'error'" ng-click="show_error(x.id)"><span class="badge badge-inverse"> 异常 </span></td>
+
+            <td><span class="badge badge-warning">||x.total||</span></td>
+            <td><span class="badge badge-success">||x.success_num||</span></td>
+            <td><span class="badge">||x.error_num||</span></td>
+
+            <td>||x.fabric_time||</td>
+            <td>||x.finish_time||</td>
+
+            <td>
+                <a ng-if="x.status =='edit'" ng-click="edit(x.id, x.type, x.project_id)">编辑</a>
+                <a ng-if="x.status =='edit'" ng-click="ready(x.id)">确认</a>
+                <a ng-if="x.status =='edit'" ng-click="cancel(x.id)">作废</a>
+                <a ng-if="x.status == 'ready'" ng-click="deploy(x.id)">发布</a>
+                <a ng-if="x.status == 'ready'" ng-click="cancel(x.id)">作废</a>
+                <a ng-if="x.status == 'edit'" ng-click="assignment(x.id)">配额</a>
+                <a ng-if="x.status != 'edit'" ng-click="viewmachine(x.id)">浏览</a>
+            </td>
+        </tr>
+
+
+    </tbody>
+</table>
+</div>
+
+<!-- 配额 -->
+<div id="assignment" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 id="myModalLabel-assignment">配置机组</h4>
+    </div>
+    <div class="modal-body">
+
+        <!-- modal body -->
+        <table>
+            <tr>
+                <td>
+                    <select multiple="multiple" size="12" style="margin-right:3px;" ng-model="select_have" id="select_have">
+                        <option ng-repeat=" z in have" value="||z.id||">||z.name||<-->||z.desc||</option>
+                    </select>
+                </td>
+
+                <td>
+                    <button type="button" class="btn btn-link" ng-click="add_machine()" ng-model="fabric_id"><<</button>
+                    <br />
+                    <button type="button" class="btn btn-link" ng-click="del_machine()" ng-model="fabric_id" style="margin-top: 10px;">>></button>
+                </td>
+
+                <td>
+                    <select multiple="multiple" size="12" ng-model="select_nothave" id="select_nothave">
+                        <option ng-repeat="y in not_have" value="||y.id||">||y.name||<-->||y.desc||</option>
+                    </select>
+                </td>
+
+            </tr>
+        </table>
+
+        <!-- /modal body -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">关闭</button>
+    </div>
+</div>
+<!-- /配额 -->
+
+<!-- 浏览 -->
+<div id="machinelist" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby=" myModalLabel" aria-hidden="true">
+
+    <div class="modal-body">
+        <!-- modal body -->
+        <table class="table table-hover">
+            <thead>
+                <th>机器</th>
+                <th>状态</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>耗时</th>
+            </thead>
+            <tr ng-repeat="item in machine_list">
+                <td>||item.name||</td>
+
+                <td ng-if="item.status == 'not_deploy'"><span class="label label-info">暂未发布</span></td>
+                <td ng-if="item.status == 'success'"><span class="label label-success">发布成功</span></td>
+                <td ng-if="item.status == 'error'"><span class="label label-important">发布失败</span></td>
+                <td ng-if="item.status == 'warning'"><span class="label label-warning">警告</span></td>
+                <td ng-if="item.status == 'cancel'"><span class="label label-inverse">作废</span></td>
+
+                <td>||item.fabric_time||</td>
+                <td>||item.finish_time||</td>
+                <td>||item.expend||</td>
+            </tr>
+
+        </table>
+        <!-- /modal body -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">关闭</button>
+    </div>
+</div>
+<!-- /浏览 -->
